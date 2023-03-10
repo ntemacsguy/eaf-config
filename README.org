@@ -1,0 +1,75 @@
+#+STARTUP: align
+#+OPTIONS: toc:t
+* eaf
+The emacs application framework (eaf) is a project with the goal of making it possible to live in emacs. It turns out I'm not the only one with this dream. The eaf has several helpful apps. For my use case the browser and terminal are the most interesting.
+** Installation
+You'll need to install python for windows before you can install eaf and for eaf continue to work after a reboot in needs to be installed to the site-lisp directory under .emacs.d
+#+begin_src powershell
+
+  cd $Env:userprofile/AppData/Roaming/.emacs.d
+  # if the site-lisp directory doesn't already exist create it
+  mkdir site-lisp
+  cd site-lisp
+  git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git emacs-application-framework
+  cd emacs-application-framework
+  python ./install-eaf.py
+  
+#+end_src
+The install eaf python script will guide you through the rest of the setup. be sure to install the apps that you want.
+** config
+I like to use use-package to configure each app individually I feel it makes for cleaner lisp. Replace {USERNAME} with your windows user name.
+#+begin_src emacs-lisp
+
+  (use-package eaf
+    :defer 0
+    :load-path "C:/Users/{USERNAME}/AppData/Roaming/.meacs.d/site-lisp/emacs-application-framework")
+  (use-package eaf-browser
+    :after eaf
+    :load-path "C:/Users/{USERNAME}/AppData/Roaming/.meacs.d/site-lisp/emacs-application-framework/app/browser"
+    :custom
+    (eaf-browser-continue-where-left-off t)
+    (eaf-browser-enable-adblocker 1)
+    (eaf-browser-default-search-engine "startpage")
+    (eaf-browser-blank-page-url "https://www.startpage.com/")
+    (browse-url-browser-function 'eaf-open-browser)
+    :config
+    (defalias 'browse-web #'eaf-open-browser))
+  (use-package eaf-terminal
+    :after eaf
+    :load-path "C:/Users/{USERNAME}/AppData/Roaming/.meacs.d/site-lisp/emacs-application-framework/app/terminal"
+    :custom
+    (eaf-treminal-font-family "DejaVuSansMono Nerd Font")
+    (eaf-terminal-font-size "10"))
+  (use-package eaf-pdf-viewer
+    :after eaf
+    :load-path "C:/Users/{USERNAME}/AppData/Roaming/.meacs.d/site-lisp/emacs-application-framework/app/pdf-viewer")
+  
+#+end_src
+** observations
+*** Pros
+**** The best
+The browser and terminal are by far the best option for ether app in NTEmacs.
+**** Beautiful browser
+The browser follows your Emacs color theme, uses your transparency settings, and behaves the way you expect when clicking links most of the time.
+**** Functional terminal
+The terminal gives you a powershell prompt in an Emacs buffer with tab completion! Finally a fuctional terminal in NTEmacs!
+*** Cons
+**** Speed
+The browser is slower then a native app like chrome or firefox
+**** Functionality in the browser
+While it works great for most things fall appart when using certain web apps. Specificity MS Teams and the deeper menus of Azure DevOps.
+**** Look and feel of the terminal
+Term=dumb on NTEmacs already reported as an issue on the GitHub page.
+**** Prefers the old powershell
+By default the terminal will use the old powershell.exe instead of powershell core (pwsh.exe). This behavior can be overridden by manual editing the /app/terminal/eaf-terminal.el file and replacing powershell.exe with pwsh.exe in the eaf--generate-terminal-command. Perhaps someday I'll make a pull request to expose the shell as a variable for NT users.
+*** Pdf-viewer
+As of the date of this commit I haven't tested this app.
+* GIT
+- Don't mind me just getting some git management out of the way.
+#+begin_src shell :tangle ./.gitignore
+  
+  !.gitignore
+  !*.org
+  !LICENSE
+
+#+end_src
